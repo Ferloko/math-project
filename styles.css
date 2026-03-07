@@ -226,19 +226,19 @@ body {
 }
 
 .carousel-slide:nth-child(1)::before {
-    background-image: url('4.jpg');
+    background-image: url('images/4.jpg');
 }
 
 .carousel-slide:nth-child(2)::before {
-    background-image: url('2.jpg');
+    background-image: url('images/2.jpg');
 }
 
 .carousel-slide:nth-child(3)::before {
-    background-image: url('3.jpg');
+    background-image: url('images/3.jpg');
 }
 
 .carousel-slide:nth-child(4)::before {
-    background-image: url('3.jpg');
+    background-image: url('images/3.jpg');
 }
 
 .hero-content {
