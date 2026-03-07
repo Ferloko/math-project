@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPCAS | Semana de Matemáticas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="logo.png" type="image/png">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <img src="logo.png" width="50" height="50" alt="">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Inicio</a></li>
+                <li><a href="informacion.html" class="nav-link">Información</a></li>
+                <li><a href="cronologia.html" class="nav-link">Cronología</a></li>
+                <li><a href="galeria.html" class="nav-link">Galería</a></li>
+                <li><a href="contacto.html" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Hero Carousel -->
+    <section class="hero-carousel">
+        <div class="carousel-container">
+            <div class="carousel-slide active">
+                <div class="hero-content">
+                    <h1 class="hero-title">Semana de Matemáticas IPCAS</h1>
+                    <p class="hero-subtitle">Transformando ideas en realidad con creatividad y tecnología</p>
+                    <div class="hero-buttons">
+                        <a href="informacion.html" class="btn btn-primary">Conocer más</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <div class="hero-content">
+                    <h1 class="hero-title">Soluciones Creativas</h1>
+                    <p class="hero-subtitle">Desarrollando tecnología que impacta positivamente en la sociedad</p>
+                    <div class="hero-buttons">
+                        <a href="galeria.html" class="btn btn-primary">Ver Galería</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <div class="hero-content">
+                    <h1 class="hero-title">Equipo Experto</h1>
+                    <p class="hero-subtitle">Profesionales apasionados por la innovación y el diseño</p>
+                    <div class="hero-buttons">
+                        <a href="galeria.html" class="btn btn-primary">Conoce Más</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- Carousel Controls -->
+        <div class="carousel-controls">
+            <button class="carousel-btn prev-btn" onclick="changeSlide(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn next-btn" onclick="changeSlide(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators">
+            <span class="indicator active" onclick="goToSlide(0)"></span>
+            <span class="indicator" onclick="goToSlide(1)"></span>
+            <span class="indicator" onclick="goToSlide(2)"></span>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Club de Matematicas IPCAS. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+
+    <script src="script.js"></script>
+</body>
+</html>

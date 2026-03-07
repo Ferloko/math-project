@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Galería | IPCAS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="logo.png" type="image/png">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .admin-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .image-info {
+            padding: 15px;
+        }
+        .image-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+        .image-size {
+            color: #666;
+            font-size: 0.875rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+            display: none;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .status-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            display: none;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .file-input {
+            display: none;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <img src="logo.png" width="50" height="50" alt="">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Inicio</a></li>
+                <li><a href="informacion.html" class="nav-link">Información</a></li>
+                <li><a href="cronologia.html" class="nav-link">Cronología</a></li>
+                <li><a href="galeria.html" class="nav-link">Galería</a></li>
+                <li><a href="contacto.html" class="nav-link">Contacto</a></li>
+                <li><a href="admin.html" class="nav-link active">Admin</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>📸 Administración de Galería</h1>
+            <p>Gestiona las imágenes de la galería automáticamente</p>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalImages">0</div>
+                <div class="stat-label">Total de Imágenes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="galleryImages">0</div>
+                <div class="stat-label">En Galería</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingImages">0</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+
+        <!-- Sección de Subida -->
+        <div class="admin-section">
+            <h2>📤 Subir Nuevas Imágenes</h2>
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #667eea; margin-bottom: 15px;"></i>
+                <h3>Arrastra imágenes aquí o haz clic para seleccionar</h3>
+                <p>Formatos soportados: JPG, PNG, GIF, WebP (Máx. 50MB)</p>
+                <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+            </div>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+
+        <!-- Control de Galería -->
+        <div class="admin-section">
+            <h2>🔄 Control de Galería</h2>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="btn" onclick="updateGallery()">
+                    <i class="fas fa-sync-alt"></i> Actualizar Galería
+                </button>
+                <button class="btn btn-secondary" onclick="scanImages()">
+                    <i class="fas fa-search"></i> Escanear Imágenes
+                </button>
+                <button class="btn" onclick="location.href='galeria.html'">
+                    <i class="fas fa-eye"></i> Ver Galería
+                </button>
+            </div>
+        </div>
+
+        <!-- Lista de Imágenes -->
+        <div class="admin-section">
+            <h2>📁 Imágenes Disponibles</h2>
+            <div id="imageList" class="image-grid">
+                <!-- Las imágenes se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Club de Matematicas IPCAS. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Configuración
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Elementos del DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const statusMessage = document.getElementById('statusMessage');
+        const imageList = document.getElementById('imageList');
+        
+        // Event Listeners
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        // Funciones
+        async function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            showStatus('info', `Subiendo ${files.length} archivo(s)...`);
+            progressBar.style.display = 'block';
+            
+            let uploadedCount = 0;
+            let errors = [];
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                progressFill.style.width = `${(i / files.length) * 100}%`;
+                
+                try {
+                    await uploadFile(file);
+                    uploadedCount++;
+                } catch (error) {
+                    errors.push(file.name);
+                }
+            }
+            
+            progressFill.style.width = '100%';
+            
+            if (uploadedCount > 0) {
+                showStatus('success', `✅ ${uploadedCount} imágenes subidas correctamente`);
+                // Actualizar galería automáticamente
+                setTimeout(() => updateGallery(), 1000);
+            }
+            
+            if (errors.length > 0) {
+                showStatus('error', `❌ Error subiendo: ${errors.join(', ')}`);
+            }
+            
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+                progressFill.style.width = '0%';
+            }, 2000);
+            
+            // Refrescar lista de imágenes
+            setTimeout(() => scanImages(), 1500);
+        }
+        
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            const response = await fetch(`${API_BASE}/gallery/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+        
+        async function updateGallery() {
+            try {
+                showStatus('info', '🔄 Actualizando galería...');
+                
+                const response = await fetch(`${API_BASE}/gallery/update`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showStatus('success', `✅ Galería actualizada: ${result.added} imágenes agregadas`);
+                    setTimeout(() => scanImages(), 1000);
+                } else {
+                    showStatus('error', '❌ Error actualizando galería');
+                }
+            } catch (error) {
+                showStatus('error', '❌ Error de conexión con el servidor');
+            }
+        }
+        
+        async function scanImages() {
+            try {
+                const response = await fetch(`${API_BASE}/gallery/images`);
+                const images = await response.json();
+                
+                displayImages(images);
+                updateStats(images);
+            } catch (error) {
+                showStatus('error', '❌ Error escaneando imágenes: ' + error.message);
+            }
+        }
+        
+        function displayImages(images) {
+            imageList.innerHTML = '';
+            
+            images.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+            
+            images.forEach(image => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                
+                const sizeInKB = (image.size / 1024).toFixed(1);
+                const modifiedDate = new Date(image.modified).toLocaleDateString();
+                
+                card.innerHTML = `
+                    <img src="${image.path}" alt="${image.name}" loading="lazy">
+                    <div class="image-info">
+                        <div class="image-name">${image.name}</div>
+                        <div class="image-size">${sizeInKB} KB - ${modifiedDate}</div>
+                    </div>
+                `;
+                
+                imageList.appendChild(card);
+            });
+        }
+        
+        async function updateStats(images) {
+            try {
+                // Contar imágenes en galería actual
+                const galleryResponse = await fetch('galeria.html');
+                const galleryHtml = await galleryResponse.text();
+                const galleryMatches = galleryHtml.match(/<img src="([^"]+)" alt="[^"]*">/g);
+                const galleryCount = galleryMatches ? galleryMatches.filter(match => !match.includes('src="#"')).length : 0;
+                
+                const totalCount = images.length;
+                const pendingCount = totalCount - galleryCount;
+                
+                document.getElementById('totalImages').textContent = totalCount;
+                document.getElementById('galleryImages').textContent = galleryCount;
+                document.getElementById('pendingImages').textContent = pendingCount;
+            } catch (error) {
+                console.error('Error actualizando estadísticas:', error);
+            }
+        }
+        
+        function showStatus(type, message) {
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.textContent = message;
+            statusMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            scanImages();
+        });
+    </script>
+</body>
+</html>
