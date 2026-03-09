@@ -1587,6 +1587,19 @@ body {
     border-radius: 50px;
 }
 
+.timeline-image {
+    max-width: 100%;
+    height: auto;
+    margin: var(--spacing-md) 0;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    object-fit: cover;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--spacing-md);
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
     .page-title {
