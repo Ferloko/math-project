@@ -53,7 +53,6 @@ class GalleryAutoManager {
                         <div class="gallery-actions">
                             <button class="gallery-btn like-btn" data-image="${imagePath}" title="Me gusta">
                                 <i class="far fa-heart"></i>
-                                <span class="like-count">0</span>
                             </button>
                             <button class="gallery-btn download-btn" data-image="${imagePath}" title="Descargar imagen">
                                 <i class="fas fa-download"></i>
