@@ -20,6 +20,11 @@ class LikesManager {
 
     // Detectar automáticamente la URL del backend
     detectBackendUrl() {
+        // Temporalmente forzar localhost para evitar problemas
+        return 'http://localhost:3001/api';
+        
+        // Código original (comentado temporalmente)
+        /*
         // En producción, usar el mismo dominio que el frontend
         if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
             // Si el sitio está en un dominio real, usar el mismo dominio con puerto 3001
@@ -32,6 +37,7 @@ class LikesManager {
         
         // Para desarrollo, usar localhost:3001 por defecto
         return `http://${hostname}:3001/api`;
+        */
     }
 
     // Verificar si el servidor está disponible
