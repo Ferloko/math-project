@@ -747,10 +747,9 @@ body {
     display: block;
 }
 
-/* Manejo especial para imágenes verticales o con proporciones diferentes */
-.gallery-item img[alt*="WhatsApp"] {
-    object-fit: contain;
-    background: var(--color-background-light);
+/* Todas las imágenes deben llenar completamente el contenedor */
+.gallery-item img {
+    object-fit: cover;
 }
 
 .gallery-item:hover img {
