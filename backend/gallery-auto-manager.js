@@ -62,24 +62,6 @@ class GalleryAutoManager {
                 </div>`;
     }
 
-    // Generar HTML para los filtros de la galería
-    generateGalleryFilters() {
-        return `    <!-- Filtros de Galería -->
-    <section class="section">
-        <div class="container">
-            <div class="gallery-filters">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="dia-1">Día 1</button>
-                <button class="filter-btn" data-filter="dia-2">Día 2</button>
-                <button class="filter-btn" data-filter="dia-3">Día 3</button>
-                <button class="filter-btn" data-filter="dia-4">Día 4</button>
-                <button class="filter-btn" data-filter="dia-5">Día 5</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Galería Principal -->`;
-    }
     // Eliminar items con # de la galería
     async removeHashItems() {
         try {
@@ -93,69 +75,17 @@ class GalleryAutoManager {
             // Eliminar los items con #
             htmlContent = htmlContent.replace(hashItemRegex, '');
             
-            // Guardar el contenido modificado
+            // Guardar el HTML limpio
             await fs.writeFile(this.galleryHtmlPath, htmlContent);
             
-            return {
-                success: true,
-                removedItems: removedItems.length,
-                message: `Se eliminaron ${removedItems.length} elementos inválidos`
-            };
-        } catch (error) {
-            console.error('Error eliminando items con #:', error);
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
-
-    // Actualizar galería con filtros incluidos
-    async updateGalleryWithFilters() {
-        try {
-            const images = await this.getImages();
-            
-            if (images.length === 0) {
-                return { success: false, message: 'No se encontraron imágenes' };
+            if (removedItems.length > 0) {
+                console.log(`🗑️  Se eliminaron ${removedItems.length} items con # de la galería`);
             }
             
-            // Generar HTML para los filtros
-            const filtersHtml = this.generateGalleryFilters();
-            
-            // Generar HTML para los items
-            const itemsHtml = images.map((img, index) => {
-                const dayNumber = Math.floor(index / 1) + 1; // Asignar día basado en el orden
-                const title = `Actividad del Día ${dayNumber}`;
-                const description = `Foto destacada del día ${dayNumber} de nuestro evento`;
-                return this.generateGalleryItem(img.name, title, description);
-            }).join('\n');
-            
-            // Leer el contenido actual del HTML
-            let htmlContent = await fs.readFile(this.galleryHtmlPath, 'utf8');
-            
-            // Reemplazar la sección de la galería
-            const gallerySectionRegex = /            <!-- Galería Principal -->[\s\S]*?<\/div>/;
-            const newGallerySection = `            <!-- Galería Principal -->
-            <div class="gallery-grid">
-${itemsHtml}
-            </div>`;
-            
-            htmlContent = htmlContent.replace(gallerySectionRegex, newGallerySection);
-            
-            // Guardar el contenido actualizado
-            await fs.writeFile(this.galleryHtmlPath, htmlContent);
-            
-            return {
-                success: true,
-                imagesAdded: images.length,
-                message: `Se agregaron ${images.length} imágenes a la galería`
-            };
+            return removedItems.length;
         } catch (error) {
-            console.error('Error actualizando galería con filtros:', error);
-            return {
-                success: false,
-                error: error.message
-            };
+            console.error('Error eliminando items con #:', error);
+            return 0;
         }
     }
 

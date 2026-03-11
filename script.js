@@ -146,7 +146,7 @@ function initScrollEffects() {
 function initGallery() {
     if (!filterBtns) return;
     
-    // Filtrado de galería por categorías/días
+    // Filtrado de galería
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             // Actualizar botón activo
@@ -155,67 +155,9 @@ function initGallery() {
             
             // Filtrar elementos
             const filter = btn.getAttribute('data-filter');
-            filterGalleryItems(filter);
+            
         });
     });
-}
-
-// Función para filtrar elementos de la galería
-function filterGalleryItems(filter) {
-    const galleryItems = document.querySelectorAll('.gallery-item');
-    
-    galleryItems.forEach(item => {
-        const img = item.querySelector('img');
-        const imgSrc = img ? img.src : '';
-        const imgAlt = img ? img.alt : '';
-        
-        // Determinar si el elemento coincide con el filtro
-        let shouldShow = false;
-        
-        if (filter === 'all') {
-            shouldShow = true;
-        } else if (filter.startsWith('dia-')) {
-            // Filtrar por día - buscar en el src o alt del nombre de archivo
-            const dayNumber = filter.replace('dia-', '');
-            shouldShow = isImageFromDay(imgSrc, imgAlt, dayNumber);
-        }
-        
-        // Aplicar el filtro con animación
-        if (shouldShow) {
-            item.style.display = 'block';
-            setTimeout(() => {
-                item.style.opacity = '1';
-                item.style.transform = 'scale(1)';
-            }, 50);
-        } else {
-            item.style.opacity = '0';
-            item.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                item.style.display = 'none';
-            }, 300);
-        }
-    });
-}
-
-// Función para determinar si una imagen pertenece a un día específico
-function isImageFromDay(imgSrc, imgAlt, dayNumber) {
-    // Lógica para asignar imágenes a días basado en el nombre del archivo
-    const fileName = imgSrc.split('/').pop() || imgAlt;
-    
-    // Aquí puedes definir la lógica específica para tus imágenes
-    // Por ahora, usaré una lógica basada en el orden de las imágenes
-    
-    const dayMappings = {
-        '1': ['WhatsApp Image 2026-03-09 at 17.38.56.jpeg'], // Día 1
-        '2': ['WhatsApp Image 2026-03-09 at 17.38.56 (1).jpeg'], // Día 2
-        '3': ['WhatsApp Image 2026-03-09 at 17.38.56 (2).jpeg'], // Día 3
-        '4': ['WhatsApp Image 2026-03-09 at 17.38.57.jpeg'], // Día 4
-        '5': [] // Día 5 - vacío por ahora
-    };
-    
-    return dayMappings[dayNumber] && dayMappings[dayNumber].some(pattern => 
-        fileName.toLowerCase().includes(pattern.toLowerCase())
-    );
 }
 
 // ===== LIGHTBOX =====
