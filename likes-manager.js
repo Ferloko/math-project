@@ -1,7 +1,8 @@
 // ===== SISTEMA DE LIKES ORIENTADO A SERVIDOR =====
 class LikesManager {
     constructor() {
-        this.backendUrl = 'http://localhost:3001/api';
+        // Configuración automática de URL del backend
+        this.backendUrl = this.detectBackendUrl();
         this.isOnline = navigator.onLine;
         this.syncQueue = [];
         this.serverAvailable = false; // Nuevo flag para detectar si el servidor está disponible
@@ -15,6 +16,22 @@ class LikesManager {
         window.addEventListener('offline', () => {
             this.isOnline = false;
         });
+    }
+
+    // Detectar automáticamente la URL del backend
+    detectBackendUrl() {
+        // En producción, usar el mismo dominio que el frontend
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            // Si el sitio está en un dominio real, usar el mismo dominio con puerto 3001
+            return `${window.location.protocol}//${window.location.hostname}:3001/api`;
+        }
+        
+        // En desarrollo, intentar diferentes puertos comunes
+        const possiblePorts = [3001, 3002, 8000, 8080];
+        const hostname = window.location.hostname || 'localhost';
+        
+        // Para desarrollo, usar localhost:3001 por defecto
+        return `http://${hostname}:3001/api`;
     }
 
     // Verificar si el servidor está disponible
