@@ -8,6 +8,7 @@ const galleryItems = document.querySelectorAll('.gallery-item');
 const filterBtns = document.querySelectorAll('.filter-btn');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
+const lightboxVideo = document.getElementById('lightbox-video');
 const lightboxTitle = document.getElementById('lightbox-title');
 const lightboxDescription = document.getElementById('lightbox-description');
 const lightboxClose = document.querySelector('.lightbox-close');
@@ -162,7 +163,7 @@ function initGallery() {
 
 // ===== LIGHTBOX =====
 function initLightbox() {
-    if (!galleryItems || !lightbox || !lightboxImg || !lightboxTitle || !lightboxDescription) return;
+    if (!galleryItems || !lightbox || !lightboxImg || !lightboxVideo || !lightboxTitle || !lightboxDescription) return;
     
     galleryItems.forEach(item => {
         item.addEventListener('click', (e) => {
@@ -172,10 +173,23 @@ function initLightbox() {
             }
             
             const img = item.querySelector('img');
+            const video = item.querySelector('video');
             const title = item.querySelector('h3').textContent;
             const description = item.querySelector('p').textContent;
             
-            lightboxImg.src = img.src;
+            if (video) {
+                // Es un video
+                lightboxVideo.src = video.src;
+                lightboxVideo.style.display = 'block';
+                lightboxImg.style.display = 'none';
+                lightboxVideo.play();
+            } else if (img) {
+                // Es una imagen
+                lightboxImg.src = img.src;
+                lightboxImg.style.display = 'block';
+                lightboxVideo.style.display = 'none';
+            }
+            
             lightboxTitle.textContent = title;
             lightboxDescription.textContent = description;
             
@@ -204,6 +218,12 @@ function initLightbox() {
 function closeLightbox() {
     lightbox.style.display = 'none';
     document.body.style.overflow = 'auto';
+    
+    // Detener video si está reproduciéndose
+    if (lightboxVideo) {
+        lightboxVideo.pause();
+        lightboxVideo.currentTime = 0;
+    }
 }
 
 // ===== FORMULARIO DE CONTACTO =====

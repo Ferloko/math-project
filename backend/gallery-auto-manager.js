@@ -5,10 +5,10 @@ class GalleryAutoManager {
     constructor(galleryHtmlPath, imagesDir = './images/') {
         this.galleryHtmlPath = galleryHtmlPath;
         this.imagesDir = imagesDir;
-        this.supportedFormats = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+        this.supportedFormats = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.mp4', '.avi', '.mov', '.webm'];
     }
 
-    // Obtener todas las imágenes en el directorio
+    // Obtener todas las imágenes y videos en el directorio
     async getImagesInDirectory() {
         try {
             const files = await fs.readdir(this.imagesDir);
@@ -24,42 +24,67 @@ class GalleryAutoManager {
         }
     }
 
-    // Obtener imágenes actualmente en la galería HTML
+    // Obtener imágenes y videos actualmente en la galería HTML
     async getCurrentGalleryImages() {
         try {
             const htmlContent = await fs.readFile(this.galleryHtmlPath, 'utf8');
-            const imgMatches = htmlContent.match(/<img src="([^"]+)" alt="[^"]*">/g);
+            // Buscar tanto imágenes como videos
+            const imgMatches = htmlContent.match(/<img src="([^"]+)" alt="[^"]*">/g) || [];
+            const videoMatches = htmlContent.match(/<video src="([^"]+)"/g) || [];
             
-            if (!imgMatches) return [];
-            
-            return imgMatches.map(match => {
+            const extractSrc = (match) => {
                 const srcMatch = match.match(/src="([^"]+)"/);
                 return srcMatch ? srcMatch[1] : null;
-            }).filter(src => src && src !== '#');
+            };
+            
+            const imgSources = imgMatches.map(extractSrc).filter(src => src && src !== '#');
+            const videoSources = videoMatches.map(extractSrc).filter(src => src && src !== '#');
+            
+            return [...imgSources, ...videoSources];
         } catch (error) {
             console.error('Error leyendo HTML:', error);
             return [];
         }
     }
 
-    // Generar HTML para un nuevo item de galería
-    generateGalleryItem(imageName, title, description) {
-        const imagePath = `images/${imageName}`;
-        return `                <div class="gallery-item" >
-                    <img src="${imagePath}" alt="${title}">
+    // Generar HTML para un nuevo item de galería (imagen o video)
+    generateGalleryItem(fileName, title, description) {
+        const filePath = `images/${fileName}`;
+        const isVideo = ['.mp4', '.avi', '.mov', '.webm'].includes(path.extname(fileName).toLowerCase());
+        
+        if (isVideo) {
+            return `                <div class="gallery-item video-item" >
+                    <video src="${filePath}" alt="${title}" muted loop playsinline></video>
                     <div class="gallery-overlay">
                         <h3>${title}</h3>
                         <p>${description}</p>
                         <div class="gallery-actions">
-                            <button class="gallery-btn like-btn" data-image="${imagePath}" title="Me gusta">
+                            <button class="gallery-btn like-btn" data-image="${filePath}" title="Me gusta">
                                 <i class="far fa-heart"></i>
                             </button>
-                            <button class="gallery-btn download-btn" data-image="${imagePath}" title="Descargar imagen">
+                            <button class="gallery-btn download-btn" data-image="${filePath}" title="Descargar video">
                                 <i class="fas fa-download"></i>
                             </button>
                         </div>
                     </div>
                 </div>`;
+        } else {
+            return `                <div class="gallery-item" >
+                    <img src="${filePath}" alt="${title}">
+                    <div class="gallery-overlay">
+                        <h3>${title}</h3>
+                        <p>${description}</p>
+                        <div class="gallery-actions">
+                            <button class="gallery-btn like-btn" data-image="${filePath}" title="Me gusta">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="gallery-btn download-btn" data-image="${filePath}" title="Descargar imagen">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        }
     }
 
     // Eliminar items con # de la galería
@@ -90,16 +115,23 @@ class GalleryAutoManager {
     }
 
     // Generar título y descripción automáticamente basados en el nombre
-    generateMetadata(imageName) {
-        const nameWithoutExt = path.basename(imageName, path.extname(imageName));
+    generateMetadata(fileName) {
+        const nameWithoutExt = path.basename(fileName, path.extname(fileName));
+        const isVideo = ['.mp4', '.avi', '.mov', '.webm'].includes(path.extname(fileName).toLowerCase());
         
         // Si el nombre es numérico, generar títulos genéricos
         if (/^\d+$/.test(nameWithoutExt)) {
-            const titles = [
+            const imageTitles = [
                 'Evento Especial', 'Actividad Académica', 'Taller Educativo',
                 'Reunión de Equipo', 'Celebración', 'Conferencia',
                 'Sesión de Trabajo', 'Presentación', 'Feria Tecnológica',
                 'Capacitación', 'Encuentro Social', 'Proyecto Especial'
+            ];
+            
+            const videoTitles = [
+                'Video Educativo', 'Presentación Multimedia', 'Taller Video',
+                'Conferencia Grabada', 'Demostración Práctica', 'Evento Especial',
+                'Sesión Interactiva', 'Proyecto Video', 'Actividad Multimedia'
             ];
             
             const descriptions = [
@@ -111,7 +143,9 @@ class GalleryAutoManager {
                 'Innovación y creatividad en acción'
             ];
             
+            const titles = isVideo ? videoTitles : imageTitles;
             const randomIndex = parseInt(nameWithoutExt) % titles.length;
+            
             return {
                 title: titles[randomIndex],
                 description: descriptions[randomIndex % descriptions.length]
@@ -121,7 +155,7 @@ class GalleryAutoManager {
         // Para nombres con texto, usar el nombre como título
         return {
             title: nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1),
-            description: 'Actividad destacada de nuestra comunidad'
+            description: isVideo ? 'Video destacado de nuestra comunidad' : 'Actividad destacada de nuestra comunidad'
         };
     }
 
@@ -138,17 +172,17 @@ class GalleryAutoManager {
             console.log('📋 Imágenes en directorio:', availableImages);
             console.log('📋 Imágenes en galería:', currentImages);
             
-            // Encontrar imágenes nuevas (que están en directorio pero no en galería)
-            const newImages = availableImages.filter(img => {
-                const imagePath = `images/${img}`;
-                return !currentImages.includes(img) && 
-                       !currentImages.includes(imagePath);
+            // Encontrar imágenes/videos nuevos (que están en directorio pero no en galería)
+            const newFiles = availableImages.filter(file => {
+                const filePath = `images/${file}`;
+                return !currentImages.includes(file) && 
+                       !currentImages.includes(filePath);
             });
 
-            console.log('📋 Imágenes nuevas:', newImages);
+            console.log('📋 Archivos nuevos:', newFiles);
 
-            if (newImages.length === 0) {
-                console.log('✅ No hay imágenes nuevas para agregar');
+            if (newFiles.length === 0) {
+                console.log('✅ No hay archivos nuevos para agregar');
                 return { added: 0, images: [], removed: 0 };
             }
 
@@ -187,15 +221,15 @@ class GalleryAutoManager {
             const gridContentStart = galleryGridStart + '<div class="gallery-grid">'.length;
             const currentGridContent = htmlContent.substring(gridContentStart, lastDivIndex);
             
-            // Generar HTML para nuevas imágenes
+            // Generar HTML para nuevos archivos
             let newItemsHtml = '';
-            const addedImages = [];
+            const addedFiles = [];
             
-            for (const imageName of newImages) {
-                const metadata = this.generateMetadata(imageName);
-                const itemHtml = this.generateGalleryItem(imageName, metadata.title, metadata.description);
+            for (const fileName of newFiles) {
+                const metadata = this.generateMetadata(fileName);
+                const itemHtml = this.generateGalleryItem(fileName, metadata.title, metadata.description);
                 newItemsHtml += itemHtml + '\n';
-                addedImages.push({ name: imageName, path: `images/${imageName}`, ...metadata });
+                addedFiles.push({ name: fileName, path: `images/${fileName}`, ...metadata });
             }
             
             // Construir el nuevo contenido del gallery-grid
@@ -210,12 +244,13 @@ class GalleryAutoManager {
             // Guardar HTML actualizado
             await fs.writeFile(this.galleryHtmlPath, newHtmlContent);
             
-            console.log(`✅ Se agregaron ${newImages.length} imágenes nuevas:`);
-            addedImages.forEach(img => {
-                console.log(`   📸 ${img.name} - ${img.title}`);
+            console.log(`✅ Se agregaron ${newFiles.length} archivos nuevos:`);
+            addedFiles.forEach(file => {
+                const fileType = ['.mp4', '.avi', '.mov', '.webm'].includes(path.extname(file.name).toLowerCase()) ? '🎥' : '📸';
+                console.log(`   ${fileType} ${file.name} - ${file.title}`);
             });
 
-            return { added: newImages.length, images: addedImages };
+            return { added: newFiles.length, images: addedFiles };
 
         } catch (error) {
             console.error('❌ Error actualizando galería:', error);
@@ -236,7 +271,8 @@ class GalleryAutoManager {
             
             const ext = path.extname(filename).toLowerCase();
             if (this.supportedFormats.includes(ext)) {
-                console.log(`🔄 Cambio detectado: ${filename}`);
+                const fileType = ['.mp4', '.avi', '.mov', '.webm'].includes(ext) ? '🎥 Video' : '📸 Imagen';
+                console.log(`🔄 Cambio detectado: ${fileType} ${filename}`);
                 
                 // Esperar un poco para asegurar que el archivo esté completamente copiado
                 setTimeout(async () => {
